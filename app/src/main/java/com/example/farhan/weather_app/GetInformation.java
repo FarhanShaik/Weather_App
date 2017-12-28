@@ -16,6 +16,10 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 import static com.example.farhan.weather_app.MainActivity.Jdata;
 import static com.example.farhan.weather_app.MainActivity.Wurl;
 import static com.example.farhan.weather_app.MainActivity.h;
@@ -33,10 +37,14 @@ import static com.example.farhan.weather_app.MainActivity.w;
 public class GetInformation extends AsyncTask<Void, Void, Void> {
 
     String data="";
+    private OkHttpClient okHttpClient;
+    private Request request;
+
+
     @Override
     protected Void doInBackground(Void... voids) {
         try{
-            URL url = new URL(Wurl);
+            /*URL url = new URL(Wurl);
 
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
@@ -50,14 +58,13 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
             while(line!=null){
                 line = bf.readLine();
                 data = data+line;
+            }*/
+            if(Wurl!="") {
+                okHttpClient = new OkHttpClient();
+                request = new Request.Builder().url(Wurl).build();
+                Response response = okHttpClient.newCall(request).execute();
+                data = response.body().string();
             }
-            Jdata= data;
-            JSONObject json = new JSONObject(Jdata);
-            loc= json.getJSONObject("current_observation").getJSONObject("display_location").getString("full");
-            w= json.getJSONObject("current_observation").getString("weather");
-            tf=json.getJSONObject("current_observation").getString("temp_f");
-            tc=json.getJSONObject("current_observation").getString("temp_c");
-            h=json.getJSONObject("current_observation").getString("relative_humidity");
 
 
 
@@ -67,11 +74,29 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
 
 
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        super.onPostExecute(aVoid);
+
+        try {
+            Jdata= data;
+            JSONObject json = null;
+            json = new JSONObject(Jdata);
+            loc= json.getJSONObject("current_observation").getJSONObject("display_location").getString("full");
+            w= json.getJSONObject("current_observation").getString("weather");
+            tf=json.getJSONObject("current_observation").getString("temp_f");
+            tc=json.getJSONObject("current_observation").getString("temp_c");
+            h=json.getJSONObject("current_observation").getString("relative_humidity");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 }

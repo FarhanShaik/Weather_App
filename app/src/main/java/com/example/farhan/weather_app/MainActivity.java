@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     Button btn;
     LocationManager locationManager;
     LocationListener locationListener;
-    public static String Wurl;
+    public static String Wurl="";
     public static String Jdata = "";
     public static String w="";
     public static String tf="";
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
 
-                new GetInformation().execute();
+
 
             }
         });
