@@ -1,7 +1,39 @@
 package com.example.farhan.weather_app;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.IntentSender;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.database.DatabaseErrorHandler;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.UserHandle;
+import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresPermission;
+import android.support.annotation.StringDef;
+import android.support.annotation.StyleRes;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.Display;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -9,7 +41,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -22,11 +59,7 @@ import okhttp3.Response;
 
 import static com.example.farhan.weather_app.MainActivity.Jdata;
 import static com.example.farhan.weather_app.MainActivity.Wurl;
-import static com.example.farhan.weather_app.MainActivity.h;
-import static com.example.farhan.weather_app.MainActivity.loc;
-import static com.example.farhan.weather_app.MainActivity.tc;
-import static com.example.farhan.weather_app.MainActivity.tf;
-import static com.example.farhan.weather_app.MainActivity.w;
+
 
 
 
@@ -40,25 +73,16 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
     private OkHttpClient okHttpClient;
     private Request request;
 
+    Activity activity;
+
+    public GetInformation(Activity activity) {
+        this.activity = activity;
+    }
 
     @Override
     protected Void doInBackground(Void... voids) {
         try{
-            /*URL url = new URL(Wurl);
 
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-
-
-            con.setRequestMethod("GET");
-            con.connect();
-            BufferedReader bf = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String line = "";
-            String value = bf.readLine();
-            System.out.println("result: " + value);
-            while(line!=null){
-                line = bf.readLine();
-                data = data+line;
-            }*/
             if(Wurl!="") {
                 okHttpClient = new OkHttpClient();
                 request = new Request.Builder().url(Wurl).build();
@@ -88,12 +112,21 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
             Jdata= data;
             JSONObject json = null;
             json = new JSONObject(Jdata);
-            loc= json.getJSONObject("current_observation").getJSONObject("display_location").getString("full");
-            w= json.getJSONObject("current_observation").getString("weather");
-            tf=json.getJSONObject("current_observation").getString("temp_f");
-            tc=json.getJSONObject("current_observation").getString("temp_c");
-            h=json.getJSONObject("current_observation").getString("relative_humidity");
 
+            String loca= json.getJSONObject("current_observation").getJSONObject("display_location").getString("full");
+            String wa= json.getJSONObject("current_observation").getString("weather");
+            String tfa=json.getJSONObject("current_observation").getString("temp_f");
+            String tca=json.getJSONObject("current_observation").getString("temp_c");
+            String ha=json.getJSONObject("current_observation").getString("relative_humidity");
+            Intent i = new Intent();
+            i.setAction("com.example.farhan.weather_app");
+            i.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+            i.putExtra("location", loca);
+            i.putExtra("weather", wa);
+            i.putExtra("tempf", tfa);
+            i.putExtra("tempc", tca);
+            i.putExtra("humid", ha);
+            activity.getApplicationContext().sendBroadcast(i);
         } catch (JSONException e) {
             e.printStackTrace();
         }

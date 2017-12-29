@@ -1,7 +1,11 @@
 package com.example.farhan.weather_app;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -23,17 +27,20 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
 
 
+
+
+    Activity activity = this;
     Button btn;
     LocationManager locationManager;
     LocationListener locationListener;
     public static String Wurl="";
     public static String Jdata = "";
-    public static String w="";
-    public static String tf="";
-    public static String tc="";
-    public static String h="";
-    public static String loc="";
-
+    String w="";
+    String tf="";
+    String tc="";
+    String h="";
+    String loc="";
+    IntentFilter intentFilter = new IntentFilter();
     public TextView weather, tempF, tempC, humid, city;
 
 
@@ -52,16 +59,26 @@ public class MainActivity extends AppCompatActivity {
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         locationListener = new LocationListener() {
             @Override
-            public void onLocationChanged(Location location) {
+            public void onLocationChanged(final Location location) {
+
                 Wurl = "http://api.wunderground.com/api/7a71322e01bde96a/conditions/q/"+location.getLatitude()+","+location.getLongitude()+".json";
 //               txt1.setText("Latitude: "+ location.getLatitude()+", Longitude: "+ location.getLongitude());
-                new GetInformation().execute();
+                new GetInformation(activity).execute();
+                intentFilter.addAction("com.example.farhan.weather_app");
 
-                city.setText("Location: "+loc);
-                weather.setText("Weather: "+w);
-                tempF.setText("Temperature(F): "+tf);
-                tempC.setText("Temperature(C): "+tc);
-                humid.setText("Relative % Humidity: "+h);
+                BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        city.setText("Location: "+intent.getStringExtra("location"));
+                        weather.setText("Weather: "+intent.getStringExtra("weather"));
+                        tempF.setText("Temperature(F): "+intent.getStringExtra("tempf"));
+                        tempC.setText("Temperature(C): "+intent.getStringExtra("tempc"));
+                        humid.setText("Relative % Humidity: "+intent.getStringExtra("humid"));
+                    }
+                };
+                registerReceiver(broadcastReceiver,intentFilter);
+
+
 
             }
 
