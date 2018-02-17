@@ -118,8 +118,8 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
             String tfa=json.getJSONObject("current_observation").getString("temp_f");
             String tca=json.getJSONObject("current_observation").getString("temp_c");
             String ha=json.getJSONObject("current_observation").getString("relative_humidity");
-            Intent i = new Intent();
-            i.setAction("com.example.farhan.weather_app");
+            Intent i = new Intent("specialAction");
+
             i.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
             i.putExtra("location", loca);
             i.putExtra("weather", wa);

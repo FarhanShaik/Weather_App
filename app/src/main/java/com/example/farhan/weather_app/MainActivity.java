@@ -27,19 +27,17 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
 
 
-
-
     Activity activity = this;
     Button btn;
     LocationManager locationManager;
     LocationListener locationListener;
-    public static String Wurl="";
+    public static String Wurl = "";
     public static String Jdata = "";
-    String w="";
-    String tf="";
-    String tc="";
-    String h="";
-    String loc="";
+    String w = "";
+    String tf = "";
+    String tc = "";
+    String h = "";
+    String loc = "";
     IntentFilter intentFilter = new IntentFilter();
     public TextView weather, tempF, tempC, humid, city;
 
@@ -61,23 +59,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLocationChanged(final Location location) {
 
-                Wurl = "http://api.wunderground.com/api/7a71322e01bde96a/conditions/q/"+location.getLatitude()+","+location.getLongitude()+".json";
+                Wurl = "http://api.wunderground.com/api/7a71322e01bde96a/conditions/q/" + location.getLatitude() + "," + location.getLongitude() + ".json";
 //               txt1.setText("Latitude: "+ location.getLatitude()+", Longitude: "+ location.getLongitude());
                 new GetInformation(activity).execute();
-                intentFilter.addAction("com.example.farhan.weather_app");
+                intentFilter.addAction("specialAction");
 
                 BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        city.setText("Location: "+intent.getStringExtra("location"));
-                        weather.setText("Weather: "+intent.getStringExtra("weather"));
-                        tempF.setText("Temperature(F): "+intent.getStringExtra("tempf"));
-                        tempC.setText("Temperature(C): "+intent.getStringExtra("tempc"));
-                        humid.setText("Relative % Humidity: "+intent.getStringExtra("humid"));
+                        city.setText("Location: " + intent.getStringExtra("location"));
+                        weather.setText("Weather: " + intent.getStringExtra("weather"));
+                        tempF.setText("Temperature(F): " + intent.getStringExtra("tempf"));
+                        tempC.setText("Temperature(C): " + intent.getStringExtra("tempc"));
+                        humid.setText("Relative % Humidity: " + intent.getStringExtra("humid"));
                     }
                 };
-                registerReceiver(broadcastReceiver,intentFilter);
-
+                registerReceiver(broadcastReceiver, intentFilter);
 
 
             }
@@ -99,11 +96,11 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-           requestPermissions(new String[]{
-                   Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.INTERNET
-           }, 10);
+            requestPermissions(new String[]{
+                    Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.INTERNET
+            }, 10);
             return;
-        } else{
+        } else {
             //locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
             configureButton();
         }
@@ -111,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode){
+        switch (requestCode) {
             case 10:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     configureButton();
@@ -124,6 +121,16 @@ public class MainActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
                 locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
 
 
