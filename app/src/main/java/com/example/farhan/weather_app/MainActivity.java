@@ -22,10 +22,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import static com.example.farhan.weather_app.R.color.background;
 
@@ -33,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     Activity activity = this;
-    Button btn;
+
     LocationManager locationManager;
     LocationListener locationListener;
     public static String Wurl = "";
@@ -45,8 +47,9 @@ public class MainActivity extends AppCompatActivity {
     String h = "";
     String loc = "";
     IntentFilter intentFilter = new IntentFilter();
-    public TextView weather, tempF,  humid, city;
+    public TextView weather, tempF,  humid, city, wait;
     public static ImageView imageView;
+    ProgressBar progressBar;
     ConstraintLayout constraintLayout;
 
 
@@ -56,13 +59,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         constraintLayout = (ConstraintLayout) findViewById(R.id.conLay);
-        constraintLayout.setBackgroundColor(Color.CYAN);
+//        constraintLayout.setBackgroundColor(Color.CYAN);
+        wait = (TextView) findViewById(R.id.textView);
         tempF = (TextView) findViewById(R.id.tempF);
         imageView = (ImageView) findViewById(R.id.imageView);
         weather = (TextView) findViewById(R.id.weather);
         humid = (TextView) findViewById(R.id.humid);
         city = (TextView) findViewById(R.id.location);
-        btn = (Button) findViewById(R.id.Btn);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+
+        tempF.setVisibility(View.INVISIBLE);
+        imageView.setVisibility(View.INVISIBLE);
+        weather.setVisibility(View.INVISIBLE);
+        humid.setVisibility(View.INVISIBLE);
+        city.setVisibility(View.INVISIBLE);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         locationListener = new LocationListener() {
@@ -82,6 +93,14 @@ public class MainActivity extends AppCompatActivity {
                         tempF.setText(intent.getStringExtra("tempf")+(char) 0x00B0+"F");
 
                         humid.setText("Relative % Humidity: " + intent.getStringExtra("humid"));
+                        tempF.setVisibility(View.VISIBLE);
+                        imageView.setVisibility(View.VISIBLE);
+                        weather.setVisibility(View.VISIBLE);
+                        humid.setVisibility(View.VISIBLE);
+                        city.setVisibility(View.VISIBLE);
+
+                        wait.setVisibility(View.INVISIBLE);
+                        progressBar.setVisibility(View.INVISIBLE);
                     }
                 };
                 registerReceiver(broadcastReceiver, intentFilter);
@@ -114,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
             //locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
             configureButton();
         }
+        configureButton();
     }
 
     @Override
@@ -128,9 +148,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configureButton() {
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+
                 if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
                     //    ActivityCompat#requestPermissions
@@ -146,8 +164,8 @@ public class MainActivity extends AppCompatActivity {
 
 
             }
-        });
+
 
 
     }
-}
+
