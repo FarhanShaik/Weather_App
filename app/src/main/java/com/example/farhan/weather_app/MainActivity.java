@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,15 +15,19 @@ import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import static com.example.farhan.weather_app.R.color.background;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,13 +38,16 @@ public class MainActivity extends AppCompatActivity {
     LocationListener locationListener;
     public static String Wurl = "";
     public static String Jdata = "";
+    public static String iconURL= "";
     String w = "";
     String tf = "";
     String tc = "";
     String h = "";
     String loc = "";
     IntentFilter intentFilter = new IntentFilter();
-    public TextView weather, tempF, tempC, humid, city;
+    public TextView weather, tempF,  humid, city;
+    public static ImageView imageView;
+    ConstraintLayout constraintLayout;
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -47,8 +55,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        constraintLayout = (ConstraintLayout) findViewById(R.id.conLay);
+        constraintLayout.setBackgroundColor(Color.CYAN);
         tempF = (TextView) findViewById(R.id.tempF);
-        tempC = (TextView) findViewById(R.id.tempC);
+        imageView = (ImageView) findViewById(R.id.imageView);
         weather = (TextView) findViewById(R.id.weather);
         humid = (TextView) findViewById(R.id.humid);
         city = (TextView) findViewById(R.id.location);
@@ -67,10 +77,10 @@ public class MainActivity extends AppCompatActivity {
                 BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        city.setText("Location: " + intent.getStringExtra("location"));
-                        weather.setText("Weather: " + intent.getStringExtra("weather"));
-                        tempF.setText("Temperature(F): " + intent.getStringExtra("tempf"));
-                        tempC.setText("Temperature(C): " + intent.getStringExtra("tempc"));
+                        city.setText(intent.getStringExtra("location"));
+                        weather.setText(intent.getStringExtra("weather"));
+                        tempF.setText(intent.getStringExtra("tempf")+(char) 0x00B0+"F");
+
                         humid.setText("Relative % Humidity: " + intent.getStringExtra("humid"));
                     }
                 };

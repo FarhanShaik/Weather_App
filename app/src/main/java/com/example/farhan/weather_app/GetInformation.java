@@ -18,6 +18,7 @@ import android.content.res.Resources;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -59,8 +60,8 @@ import okhttp3.Response;
 
 import static com.example.farhan.weather_app.MainActivity.Jdata;
 import static com.example.farhan.weather_app.MainActivity.Wurl;
-
-
+import static com.example.farhan.weather_app.MainActivity.iconURL;
+import static com.example.farhan.weather_app.MainActivity.imageView;
 
 
 /**
@@ -72,6 +73,7 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
     String data="";
     private OkHttpClient okHttpClient;
     private Request request;
+    Bitmap bitmap= null;
 
     Activity activity;
 
@@ -88,6 +90,17 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
                 request = new Request.Builder().url(Wurl).build();
                 Response response = okHttpClient.newCall(request).execute();
                 data = response.body().string();
+
+                JSONObject json = new JSONObject(data);
+                URL urll = new URL(json.getJSONObject("current_observation").getString("icon_url"));
+                HttpURLConnection connection = (HttpURLConnection) urll.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                InputStream is = connection.getInputStream();
+                bitmap=BitmapFactory.decodeStream(is);
+
+
+
             }
 
 
@@ -97,6 +110,8 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
@@ -112,12 +127,18 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
             Jdata= data;
             JSONObject json = null;
             json = new JSONObject(Jdata);
-
+            imageView.setImageBitmap(bitmap);
             String loca= json.getJSONObject("current_observation").getJSONObject("display_location").getString("full");
             String wa= json.getJSONObject("current_observation").getString("weather");
             String tfa=json.getJSONObject("current_observation").getString("temp_f");
             String tca=json.getJSONObject("current_observation").getString("temp_c");
             String ha=json.getJSONObject("current_observation").getString("relative_humidity");
+
+
+
+
+
+
             Intent i = new Intent("specialAction");
 
             i.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
@@ -126,6 +147,7 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
             i.putExtra("tempf", tfa);
             i.putExtra("tempc", tca);
             i.putExtra("humid", ha);
+
             activity.getApplicationContext().sendBroadcast(i);
         } catch (JSONException e) {
             e.printStackTrace();
