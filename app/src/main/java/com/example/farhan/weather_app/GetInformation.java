@@ -1,6 +1,7 @@
 package com.example.farhan.weather_app;
 
 import android.app.Activity;
+import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -35,6 +36,7 @@ import android.support.annotation.StyleRes;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Display;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -75,11 +77,22 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
     private Request request;
     Bitmap bitmap= null;
 
-    Activity activity;
+    Activity activity = null;
+    private RemoteViews views = null;
+    private int WidgetID;
+    private AppWidgetManager WidgetManager = null;
 
-    public GetInformation(Activity activity) {
+
+    public GetInformation(Activity activity){
         this.activity = activity;
     }
+
+    public GetInformation(RemoteViews views, int appWidgetID, AppWidgetManager appWidgetManager) {
+        this.views = views;
+        this.WidgetID = appWidgetID;
+        this.WidgetManager = appWidgetManager;
+    }
+
 
     @Override
     protected Void doInBackground(Void... voids) {
@@ -127,7 +140,10 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
             Jdata= data;
             JSONObject json = null;
             json = new JSONObject(Jdata);
-            imageView.setImageBitmap(bitmap);
+
+
+            imageView.setImageBitmap(bitmap.createScaledBitmap(bitmap,1000,1000,true));
+
             String loca= json.getJSONObject("current_observation").getJSONObject("display_location").getString("full");
             String wa= json.getJSONObject("current_observation").getString("weather");
             String tfa=json.getJSONObject("current_observation").getString("temp_f");
@@ -135,20 +151,25 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
             String ha=json.getJSONObject("current_observation").getString("relative_humidity");
 
 
+            if (views!=null && WidgetManager!=null) {
+                views.setImageViewBitmap(R.id.imageView3, bitmap.createScaledBitmap(bitmap,500,500,true));
+                views.setTextViewText(R.id.textView2, tfa+  (char)0x00B0+"F");
+                views.setTextViewText(R.id.textView3, wa);
+                WidgetManager.updateAppWidget(WidgetID, views);
+            }
 
+            if(activity!=null) {
+                Intent i = new Intent("specialAction");
 
+                i.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+                i.putExtra("location", loca);
+                i.putExtra("weather", wa);
+                i.putExtra("tempf", tfa);
+                i.putExtra("tempc", tca);
+                i.putExtra("humid", ha);
 
-
-            Intent i = new Intent("specialAction");
-
-            i.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-            i.putExtra("location", loca);
-            i.putExtra("weather", wa);
-            i.putExtra("tempf", tfa);
-            i.putExtra("tempc", tca);
-            i.putExtra("humid", ha);
-
-            activity.getApplicationContext().sendBroadcast(i);
+                activity.getApplicationContext().sendBroadcast(i);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
