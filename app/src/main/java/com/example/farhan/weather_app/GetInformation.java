@@ -88,6 +88,7 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
     }
 
     public GetInformation(RemoteViews views, int appWidgetID, AppWidgetManager appWidgetManager) {
+        Log.d("TAAGGGG", "constructor go");
         this.views = views;
         this.WidgetID = appWidgetID;
         this.WidgetManager = appWidgetManager;
@@ -96,6 +97,7 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... voids) {
+        Log.d("TAAGGGG", "AsyncStart");
         try{
 
             if(Wurl!="") {
@@ -117,7 +119,7 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
             }
 
 
-
+            Log.d("TAAGGGG", "AsyncFinish");
         } catch (ProtocolException e) {
             e.printStackTrace();
         } catch (MalformedURLException e) {
@@ -137,13 +139,16 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
         super.onPostExecute(aVoid);
 
         try {
+            Log.d("TAAGGGG", "PostExecuteStart");
+            Log.d("TAAGGGG", data);
             Jdata= data;
             JSONObject json = null;
             json = new JSONObject(Jdata);
 
-
-            imageView.setImageBitmap(bitmap.createScaledBitmap(bitmap,1000,1000,true));
-
+            Log.d("TAAGGGG", "PostExecuteStart");
+            if(activity!=null)
+                imageView.setImageBitmap(bitmap.createScaledBitmap(bitmap,1000,1000,true));
+            Log.d("TAAGGGG", "PostExecuteStart");
             String loca= json.getJSONObject("current_observation").getJSONObject("display_location").getString("full");
             String wa= json.getJSONObject("current_observation").getString("weather");
             String tfa=json.getJSONObject("current_observation").getString("temp_f");
@@ -151,12 +156,18 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
             String ha=json.getJSONObject("current_observation").getString("relative_humidity");
 
 
-            if (views!=null && WidgetManager!=null) {
-                views.setImageViewBitmap(R.id.imageView3, bitmap.createScaledBitmap(bitmap,500,500,true));
-                views.setTextViewText(R.id.textView2, tfa+  (char)0x00B0+"F");
+            if(WidgetManager!=null && views!=null) {
+                Log.d("TAAGGGG", "Set Widget");
+                views.setImageViewBitmap(R.id.imageView3, bitmap.createScaledBitmap(bitmap, 500, 500, true));
+                views.setTextViewText(R.id.textView2, tfa + (char) 0x00B0 + "F");
                 views.setTextViewText(R.id.textView3, wa);
                 WidgetManager.updateAppWidget(WidgetID, views);
+                /*Intent i = new Intent("android.appwidget.action.APPWIDGET_UPDATE");
+                i.putExtra("image", bitmap.createScaledBitmap(bitmap,500,500,true));
+                i.putExtra("textView2", tfa+  (char)0x00B0+"F");
+                i.putExtra("textView3", wa);*/
             }
+
 
             if(activity!=null) {
                 Intent i = new Intent("specialAction");
@@ -171,6 +182,7 @@ public class GetInformation extends AsyncTask<Void, Void, Void> {
                 activity.getApplicationContext().sendBroadcast(i);
             }
         } catch (JSONException e) {
+            Log.d("TAAGGGG", e+"");
             e.printStackTrace();
         }
 
